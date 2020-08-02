@@ -1,7 +1,9 @@
 package ssh;
 
+import Instance.SelectDao;
 import com.jcraft.jsch.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,46 +11,46 @@ import java.sql.ResultSet;
 
 public class GetBinary implements Dao<Vo> {
 
-    private Object ChannelExec;
+    private static GetBinary shell;
 
-    public GetBinary() {
-
+    public static GetBinary getInstance() {
+        if (shell == null) {
+            shell = new GetBinary();
+        }
+        return shell;
     }
 
-    public void GetBinary() throws Exception {
+    public void BinaryServer() {
 
+
+        System.out.println("==> Connecting to" );
+        Session session = null;
+        Channel channel = null;
+
+        // 2. 세션 객체를 생성한다 (사용자 이름, 접속할 호스트, 포트를 인자로 준다.)
         try {
-            Session Local = openSsh();
+            session = openSsh();
+            // 5. 접속한다.
 
-            String command = "sftp binary@192.168.2.127";
+            // 6. sftp 채널을 연다.
+            channel = session.openChannel("exec");
 
-            Channel BinaryServer = Local.openChannel("exec");
-            ((ChannelExec) BinaryServer).setCommand(command);
+            // 8. 채널을 SSH용 채널 객체로 캐스팅한다
+            ChannelExec channelExec = (ChannelExec) channel;
 
-            BinaryServer.setInputStream(null);
-            ((ChannelExec) BinaryServer).setErrStream(System.err);
+            System.out.println("==> Connected to" );
 
-            InputStream in = BinaryServer.getInputStream();
-            BinaryServer.connect();
-            byte[] tmp = new byte[1024];
-            while (true) {
-                while (in.available() > 0) {
-                    int i = in.read(tmp, 0, 1024);
-                    if (i < 0) break;
-                    System.out.print(new String(tmp, 0, i));
-                }
-                if (BinaryServer.isClosed()) {
-                    System.out.println("exit-status: " + BinaryServer.getExitStatus());
-                    break;
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ee) {
-                }
-            }
-            BinaryServer.disconnect();
-            Local.disconnect();
-            System.out.println("DONE");
+            channelExec.setCommand("ssh leejungwook@192.168.0.6");
+            channelExec.connect();
+
+            System.out.println("==> Connected to" );
+
+
+
+        } catch (JSchException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }

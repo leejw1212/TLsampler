@@ -1,17 +1,15 @@
 package ssh;
 
+import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
 
 public interface Dao <T extends Vo> {
 
-    //public static final String SSH_ID = "tibero";
-    public static final String SSH_ID = "cntr";
-    //public static final String SSH_PW = "1215";
+    public static final String SSH_ID = "leejungwook";
     public static final String SSH_PW = "1215";
-    //public static final String SSH_IP = "192.168.17.88";
-    public static final String SSH_IP = "localhost";
+    public static final String SSH_IP = "192.168.0.6";
     public static final int SSH_PORT = 22;
 
     default Session openSsh() throws Exception {
@@ -30,9 +28,14 @@ public interface Dao <T extends Vo> {
         return session;
     }
 
-    default void closeSsh(Session session) {
+    default void closeSsh(Channel channel, Session session) {
         try {
-            session.disconnect();
+            if (channel != null) {
+                channel.disconnect();
+            }
+            if (session != null) {
+                session.disconnect();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
